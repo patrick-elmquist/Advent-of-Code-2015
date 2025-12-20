@@ -2,25 +2,31 @@ package day01
 
 import common.day
 
-// answer #1:
-// answer #2:
+// answer #1: 232
+// answer #2: 1783
 
 fun main() {
     day(n = 1) {
         part1 { input ->
-
+            input.lines.first()
+                .runningFold(0) { floor, instruction ->
+                    floor + if (instruction == '(') 1 else -1
+                }
+                .last()
         }
         verify {
-            expect result null
-            run test 1 expect Unit
+            expect result 232
         }
 
         part2 { input ->
-
+            input.lines.first()
+                .runningFold(0) { floor, instruction ->
+                    floor + if (instruction == '(') 1 else -1
+                }
+                .indexOfFirst { floor -> floor == -1 }
         }
         verify {
-            expect result null
-            run test 1 expect Unit
+            expect result 1783
         }
     }
 }
