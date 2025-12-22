@@ -9,27 +9,8 @@ import common.day
 fun main() {
     day(n = 14) {
         part1 { input ->
-            val (n, reindeer) = parseData(input)
-            val distances = reindeer.associateWith { 0 }.toMutableMap()
-            val state = reindeer.associateWith { 0 }.toMutableMap()
-            repeat(n) {
-                reindeer
-                    .forEach {
-                        val value = state.getValue(it)
-                        when {
-                            value in 0 until it.duration -> {
-                                distances.computeIfPresent(it, { a, b -> b + it.speed } )
-                            }
-
-                            value >= it.duration -> {
-                                state[it] = it.rest * -1
-                            }
-                        }
-                    }
-                state.entries.forEach { (key, value) ->
-                    state[key] = value + 1
-                }
-            }
+            val (seconds, reindeer) = parseData(input)
+            val (distances, _) = calculatePointsAndDistance(reindeer, seconds)
             distances.values.max()
         }
         verify {
@@ -38,35 +19,8 @@ fun main() {
         }
 
         part2 { input ->
-            val (n, reindeer) = parseData(input)
-            val distances = reindeer.associateWith { 0 }.toMutableMap()
-            val state = reindeer.associateWith { 0 }.toMutableMap()
-            val points = reindeer.associateWith { 0 }.toMutableMap()
-            repeat(n) {
-                reindeer
-                    .forEach {
-                        val value = state.getValue(it)
-                        when {
-                            value in 0 until it.duration -> {
-                                distances.computeIfPresent(it, { a, b -> b + it.speed } )
-                            }
-
-                            value >= it.duration -> {
-                                state[it] = it.rest * -1
-                            }
-                        }
-                    }
-
-                val maxDistance = distances.values.max()
-                distances.entries
-                    .filter { it.value == maxDistance }
-                    .forEach { (key, _) ->
-                        points[key] = points[key]!! + 1
-                    }
-                state.entries.forEach { (key, value) ->
-                    state[key] = value + 1
-                }
-            }
+            val (seconds, reindeer) = parseData(input)
+            val (_, points) = calculatePointsAndDistance(reindeer, seconds)
             points.values.max()
         }
         verify {
@@ -74,6 +28,39 @@ fun main() {
             run test 1 expect 689
         }
     }
+}
+
+private fun calculatePointsAndDistance(
+    reindeer: List<Reindeer>,
+    seconds: Int,
+): Pair<MutableMap<Reindeer, Int>, MutableMap<Reindeer, Int>> {
+    val distances = reindeer.associateWith { 0 }.toMutableMap()
+    val state = reindeer.associateWith { 0 }.toMutableMap()
+    val points = reindeer.associateWith { 0 }.toMutableMap()
+    repeat(seconds) {
+        state.forEach { (it, value) ->
+            when {
+                value in 0 until it.duration ->
+                    distances.computeIfPresent(it) { _, b -> b + it.speed }
+
+                value >= it.duration ->
+                    state[it] = it.rest * -1
+            }
+        }
+
+        val maxDistance = distances.values.max()
+        distances.entries
+            .filter { it.value == maxDistance }
+            .forEach { (key, _) ->
+                points[key] = points.getValue(key) + 1
+            }
+
+        state.entries
+            .forEach { (key, value) ->
+                state[key] = value + 1
+            }
+    }
+    return Pair(distances, points)
 }
 
 private data class Reindeer(
