@@ -1,5 +1,6 @@
 plugins {
     kotlin("jvm") version "2.2.21"
+    kotlin("plugin.serialization") version "2.2.21"
 }
 
 repositories {
@@ -17,6 +18,7 @@ kotlin {
 }
 
 dependencies {
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
     implementation("io.ktor:ktor-client-java:3.0.1")
     implementation("io.ktor:ktor-client-logging-jvm:3.0.1")
     implementation("ch.qos.logback:logback-classic:1.5.22")
