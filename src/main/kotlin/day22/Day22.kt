@@ -33,6 +33,7 @@ fun main() {
         part1 { input ->
             val (bossHp, bossDmg) = input.lines.map { it.split(": ").last().toInt() }
 
+            min = Int.MAX_VALUE
             Spell.entries
                 .mapNotNull { startSpell ->
                     rec(
@@ -53,6 +54,7 @@ fun main() {
         part2 { input ->
             val (bossHp, bossDmg) = input.lines.map { it.split(": ").last().toInt() }
 
+            min = Int.MAX_VALUE
             Spell.entries
                 .mapNotNull { startSpell ->
                     rec(
@@ -72,6 +74,7 @@ fun main() {
     }
 }
 
+var min = Int.MAX_VALUE
 private fun rec(
     player: Pair<Int, Int>,
     boss: Pair<Int, Int>,
@@ -83,6 +86,11 @@ private fun rec(
     var (bossHp, bossDmg) = boss
     var (hp, mana) = player
     val effects = effects.toMutableMap()
+    val consumedMana = consumedMana + spell.cost
+
+    if (consumedMana > min) {
+        return null
+    }
 
     if (hardMode) {
         hp--
@@ -104,11 +112,11 @@ private fun rec(
     // Player cast spell
     applyEffects()
     if (bossHp <= 0) {
+        min = minOf(min, consumedMana)
         return consumedMana
     }
     reduceEffects()
 
-    val consumedMana = consumedMana + spell.cost
     hp += spell.heal
     mana -= spell.cost
     spell.effect?.let { effects[it.first] = it.second }
@@ -117,6 +125,7 @@ private fun rec(
     // Boss turn
     applyEffects()
     if (bossHp <= 0) {
+        min = minOf(min, consumedMana)
         return consumedMana
     }
     reduceEffects()
@@ -128,7 +137,7 @@ private fun rec(
     }
 
     val availableSpells = Spell.entries
-        .filter { it !in effects }
+        .filter { it !in effects || effects.getValue(it) <= 1 }
         .filter { it.cost <= mana }
 
     if (availableSpells.isEmpty()) {
