@@ -1,7 +1,7 @@
 # Advent of Code 2015 🎄🌟🎅
 Solutions for Advent of Code 2015 written in Kotlin.
 
-Solved days: 1-22
+Solved days: 1-23
 
 [Link to Solutions](https://github.com/patrick-elmquist/Advent-of-Code-2015/tree/main/src/main/kotlin)
 

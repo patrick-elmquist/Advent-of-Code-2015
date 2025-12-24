@@ -137,7 +137,7 @@ private fun rec(
     }
 
     val availableSpells = Spell.entries
-        .filter { it !in effects || effects.getValue(it) <= 1 }
+        .filter { effects.getOrDefault(it, 0) <= 1 }
         .filter { it.cost <= mana }
 
     if (availableSpells.isEmpty()) {
