@@ -5,6 +5,52 @@ import common.day
 // answer #1: 900
 // answer #2: 1216
 
+fun main() {
+    day(n = 22) {
+        part1 { input ->
+            val (bossHp, bossDmg) = input.lines.map { it.split(": ").last().toInt() }
+
+            minConsumedMana = Int.MAX_VALUE
+            Spell.entries
+                .mapNotNull { startSpell ->
+                    rec(
+                        player = 50 to 500,
+                        boss = bossHp to bossDmg,
+                        effects = emptyMap(),
+                        spell = startSpell,
+                        consumedMana = 0,
+                        hardMode = false,
+                    )
+                }
+                .min()
+        }
+        verify {
+            expect result 900
+        }
+
+        part2 { input ->
+            val (bossHp, bossDmg) = input.lines.map { it.split(": ").last().toInt() }
+
+            minConsumedMana = Int.MAX_VALUE
+            Spell.entries
+                .mapNotNull { startSpell ->
+                    rec(
+                        player = 50 to 500,
+                        boss = bossHp to bossDmg,
+                        effects = emptyMap(),
+                        spell = startSpell,
+                        consumedMana = 0,
+                        hardMode = true,
+                    )
+                }
+                .min()
+        }
+        verify {
+            expect result 1216
+        }
+    }
+}
+
 private enum class Spell(
     val cost: Int,
     val damage: Int = 0,
@@ -28,53 +74,8 @@ private enum class Spell(
         }
 }
 
-fun main() {
-    day(n = 22) {
-        part1 { input ->
-            val (bossHp, bossDmg) = input.lines.map { it.split(": ").last().toInt() }
+private var minConsumedMana = Int.MAX_VALUE
 
-            min = Int.MAX_VALUE
-            Spell.entries
-                .mapNotNull { startSpell ->
-                    rec(
-                        player = 50 to 500,
-                        boss = bossHp to bossDmg,
-                        effects = emptyMap(),
-                        spell = startSpell,
-                        consumedMana = 0,
-                        hardMode = false,
-                    )
-                }
-                .min()
-        }
-        verify {
-            expect result 900
-        }
-
-        part2 { input ->
-            val (bossHp, bossDmg) = input.lines.map { it.split(": ").last().toInt() }
-
-            min = Int.MAX_VALUE
-            Spell.entries
-                .mapNotNull { startSpell ->
-                    rec(
-                        player = 50 to 500,
-                        boss = bossHp to bossDmg,
-                        effects = emptyMap(),
-                        spell = startSpell,
-                        consumedMana = 0,
-                        hardMode = true,
-                    )
-                }
-                .min()
-        }
-        verify {
-            expect result 1216
-        }
-    }
-}
-
-var min = Int.MAX_VALUE
 private fun rec(
     player: Pair<Int, Int>,
     boss: Pair<Int, Int>,
@@ -88,7 +89,7 @@ private fun rec(
     val effects = effects.toMutableMap()
     val consumedMana = consumedMana + spell.cost
 
-    if (consumedMana > min) {
+    if (consumedMana > minConsumedMana) {
         return null
     }
 
@@ -112,7 +113,7 @@ private fun rec(
     // Player cast spell
     applyEffects()
     if (bossHp <= 0) {
-        min = minOf(min, consumedMana)
+        minConsumedMana = minOf(minConsumedMana, consumedMana)
         return consumedMana
     }
     reduceEffects()
@@ -125,7 +126,7 @@ private fun rec(
     // Boss turn
     applyEffects()
     if (bossHp <= 0) {
-        min = minOf(min, consumedMana)
+        minConsumedMana = minOf(minConsumedMana, consumedMana)
         return consumedMana
     }
     reduceEffects()
